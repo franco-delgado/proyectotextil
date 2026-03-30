@@ -1,0 +1,42 @@
+.barraSuperior {
+  height: 5vh;
+  width: 100%;
+  margin: 0;
+  background-color: #848585;
+}
+.back {
+  height: 98%;
+  width: auto;
+  border: solid 2px #000;
+  font-size: large;
+  color: #000;
+}
+.conte .table {
+  border: solid 2px #000;
+  background-color: #9fa0a0;
+}
+.tableHead {
+  display: grid;
+  grid-template-columns: 15% 75% 10%;
+}
+.tableBody {
+  display: grid;
+  grid-template-columns: 15% 75% 10%;
+}
+
+.centerColum {
+  display: flex;
+  flex-direction: column; /* Asegura que los elementos se apilen verticalmente si es una columna */
+  align-items: center; /* Centra horizontalmente (en el eje cruzado) */
+  gap: 10px;
+  text-align: center; /* Útil para centrar las líneas de texto internas */
+  min-height: 100px; /* Opcional: Dale una altura para notar el centrado vertical */
+  border-left: 2px solid #000; /* Agrega un borde a la izquierda */
+  border-right: #000 solid 2px; /* Agrega un borde a la derecha */
+}
+/*
+.leftColum {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}*/

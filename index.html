@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <style>
+      /* 1. Evita el scroll horizontal y elimina márgenes por defecto */
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden; /* Crucial para que no se mueva de lado en tablets */
+        font-family: sans-serif; /* O la que prefieras */
+        background-color: #f4f7f6; /* Color de fondo base para tu sistema */
+      }
+
+      /* 2. Hace que todos los elementos calculen su tamaño correctamente */
+      * {
+        box-sizing: border-box;
+      }
+
+      /* 3. Evita que las imágenes de las máquinas se desborden */
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* 4. Scroll suave para una mejor experiencia de usuario */
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>proyeco-textil</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

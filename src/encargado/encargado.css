@@ -1,0 +1,28 @@
+.conten {
+  background-color: #9fa0a0;
+  margin: auto;
+  margin-top: 200px;
+  padding: auto;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  width: 900px;
+}
+p {
+  font-size: 20px;
+}
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-primary {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
