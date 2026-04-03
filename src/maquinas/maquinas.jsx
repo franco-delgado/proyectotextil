@@ -20,49 +20,92 @@ const ModalPortal = ({ children, onClose }) => {
   );
 };
 
-const misMaquinas = [];
-misMaquinas[1] = {
-  marca: "DESON",
-  modelo: "DS-3020H",
-  serie: "210",
-  Ninventario: "1A",
-  estado: "EN PRODUCCION",
-  lugar: "LIEA",
-  observacion: "EXCELENTE",
-  tipo: "PLANA",
-};
-misMaquinas[2] = {
-  marca: "CONSEW",
-  modelo: "DS-3066J",
-  serie: "410",
-  Ninventario: "8B",
-  estado: "EN MANTENIMIENTO",
-  lugar: "LIEA-J",
-  observacion: "--------",
-  tipo: "CINTURERA",
-};
-misMaquinas[3] = {
-  marca: "DESON",
-  modelo: "DS-3020H",
-  serie: "210",
-  Ninventario: "1A",
-  estado: "EN PRODUCCION",
-  lugar: "LIEA",
-  observacion: "EXCELENTE",
-  tipo: "PLANA",
-};
-misMaquinas[4] = {
-  marca: "DESON",
-  modelo: "DS-3020H",
-  serie: "210",
-  Ninventario: "1A",
-  estado: "EN PRODUCCION",
-  lugar: "LIEA",
-  observacion: "EXCELENTE",
-  tipo: "PLANA",
-};
-
 function Maquinas() {
+  const [misMaquinas, setMisMaquinas] = useState([
+    {
+      marca: "DESON",
+      modelo: "DS-3020H",
+      serie: "210",
+      Ninventario: "1A",
+      estado: "EN PRODUCCION",
+      lugar: "LIEA",
+      observacion: "EXCELENTE",
+      tipo: "PLANA",
+    },
+    {
+      marca: "CONSEW",
+      modelo: "DS-3066J",
+      serie: "410",
+      Ninventario: "8B",
+      estado: "EN MANTENIMIENTO",
+      lugar: "LIEA-J",
+      observacion: "--------",
+      tipo: "CINTURERA",
+    },
+    {
+      marca: "DESON",
+      modelo: "DS-3020H",
+      serie: "210",
+      Ninventario: "1A",
+      estado: "EN PRODUCCION",
+      lugar: "LIEA",
+      observacion: "EXCELENTE",
+      tipo: "PLANA",
+    },
+    {
+      marca: "DESON",
+      modelo: "DS-3020H",
+      serie: "210",
+      Ninventario: "1A",
+      estado: "EN PRODUCCION",
+      lugar: "LIEA",
+      observacion: "EXCELENTE",
+      tipo: "PLANA",
+    },
+  ]);
+
+  const [inputs, setInputs] = useState({
+    marca: "",
+    modelo: "",
+    serie: "",
+    Ninventario: "",
+    estado: "",
+    lugar: "",
+    observacion: "",
+    tipo: "",
+  });
+
+  const handleChangeMaquina = (e) => {
+    setInputs({
+      ...inputs,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const guardarMaquina = () => {
+    if (inputs.marca === "" || inputs.modelo === "")
+      return alert("Por favor, completa al menos la marca y el modelo");
+
+    setMisMaquinas([...misMaquinas, inputs]);
+
+    setInputs({
+      marca: "",
+      modelo: "",
+      serie: "",
+      Ninventario: "",
+      estado: "",
+      lugar: "",
+      observacion: "",
+      tipo: "",
+    });
+  };
+
+  const handleHeaderClick = (e) => {
+    const th = e.target.closest("th");
+    if (th) {
+      alert("Columna seleccionada: " + th.innerText);
+    }
+  };
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const navigate = useNavigate();
@@ -78,7 +121,7 @@ function Maquinas() {
           <p>En esta seccion vemos cada una de las maquinas</p>
           <table className="table table-hover">
             <thead>
-              <tr>
+              <tr onClick={handleHeaderClick} style={{ cursor: "pointer" }}>
                 <th scope="col">MARCA</th>
                 <th scope="col">MODELO</th>
                 <th scope="col">SERIE</th>
@@ -124,6 +167,71 @@ function Maquinas() {
               <Deson210 />
             </ModalPortal>
           )}
+        </div>
+        <div className="contenInputs">
+          <div className="inputs">
+            <input
+              type="text"
+              name="marca"
+              placeholder="marca"
+              value={inputs.marca}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="modelo"
+              placeholder="modelo"
+              value={inputs.modelo}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="serie"
+              placeholder="serie"
+              value={inputs.serie}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="Ninventario"
+              placeholder="Ninventario"
+              value={inputs.Ninventario}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="estado"
+              placeholder="estado"
+              value={inputs.estado}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="lugar"
+              placeholder="lugar"
+              value={inputs.lugar}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="observacion"
+              placeholder="observacion"
+              value={inputs.observacion}
+              onChange={handleChangeMaquina}
+            />
+            <input
+              type="text"
+              name="tipo"
+              placeholder="tipo"
+              value={inputs.tipo}
+              onChange={handleChangeMaquina}
+            />
+          </div>
+          <div className="contenGuardar">
+            <button className="guardar" onClick={guardarMaquina}>
+              GUARDAR DATOS
+            </button>
+          </div>
         </div>
       </div>
     </>

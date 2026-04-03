@@ -11,19 +11,20 @@
   font-size: large;
   color: #000;
 }
-.conte .table {
+.table {
+  margin-left: 10px;
+  margin-right: 10px;
   border: solid 2px #000;
   background-color: #9fa0a0;
 }
 .tableHead {
   display: grid;
-  grid-template-columns: 15% 75% 10%;
+  grid-template-columns: 10% 80% 10%;
 }
 .tableBody {
   display: grid;
-  grid-template-columns: 15% 75% 10%;
+  grid-template-columns: 10% 80% 10%;
 }
-
 .centerColum {
   display: flex;
   flex-direction: column; /* Asegura que los elementos se apilen verticalmente si es una columna */
@@ -33,10 +34,23 @@
   min-height: 100px; /* Opcional: Dale una altura para notar el centrado vertical */
   border-left: 2px solid #000; /* Agrega un borde a la izquierda */
   border-right: #000 solid 2px; /* Agrega un borde a la derecha */
+  max-width: 100%; /* Evita que la columna crezca más que su padre */
+  overflow-wrap: break-word; /* Rompe palabras largas si es necesario */
+  word-wrap: break-word; /* Compatibilidad con navegadores antiguos */
+  word-break: break-word; /* Fuerza el salto en palabras sin espacios */
+  padding: 0 10px; /* Opcional: espacio para que el texto no toque los bordes */
+  box-sizing: border-box;
+  white-space: normal !important;
 }
-/*
+
 .leftColum {
-  display: flex;
+  display: grid;
+  grid-template-rows: 50% 50%;
   gap: 10px;
   justify-content: flex-end;
-}*/
+}
+.btn {
+  width: 90%;
+  height: 96%;
+  font-size: medium;
+}
