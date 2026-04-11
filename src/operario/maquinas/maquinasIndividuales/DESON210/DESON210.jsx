@@ -66,6 +66,11 @@ function Deson210() {
 
   return (
     <>
+      <div className="barraSuperior">
+        <Link to="../maquinas/maquinasop" className="back">
+          REGRESAR
+        </Link>
+      </div>
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
         <h3>DESON210</h3>

@@ -13,13 +13,18 @@ function Operario() {
           En esta sección el encargado tiene la opción de dirigirse a las
           máquinas o a revisar el stock de repuestos disponibles.
         </p>
-        <div className="btn-group" role="group">
-          {/* Este Link ahora apunta a /maquinas que definiremos en App.jsx */}
-          <Link to="/maquinas" className="btn btn-primary">
-            MÁQUINAS
-          </Link>
           <Link to="/tareasOperario" className="btn btn-primary">
             TAREA DEL DIA
+          </Link>
+        <div className="btn-group" role="group">
+          {/* Este Link ahora apunta a /maquinas que definiremos en App.jsx */}
+          <Link to="/maquinas/maquinasop" className="btn btn-primary">
+            MÁQUINAS
+          </Link>
+          </div>
+          <div className="btn-group" role="group">
+          <Link to="/repuestos/repuestos" className="btn btn-primary">
+            REUESTOS
           </Link>
         </div>
         <div className="mt-3">

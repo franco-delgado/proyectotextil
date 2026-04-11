@@ -1,9 +1,9 @@
 import React, { useState } from "react"; // Agregamos { useState } aquí
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+
 import "./maquinas.css";
-import Deson210 from "./maquinasIndividuales/DESON210/DESON210";
+import Deson210 from "./maquinasIndividuales/DESON210/DESON210"; // Asegúrate que la ruta del import sea correcta
 
 // --- 1. Definición del Portal (Fuera del componente principal) ---
 const ModalPortal = ({ children, onClose }) => {
@@ -112,9 +112,9 @@ function Maquinas() {
   return (
     <>
       <div className="barraSuperior">
-        <button onClick={() => navigate(-1)}>Regresar</button>
+        <button onClick={() => navigate("../operario")}>Regresar</button>
       </div>
-      ;
+
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
         <div className="table-container">
@@ -141,7 +141,8 @@ function Maquinas() {
                     onClick={() => {
                       // Validamos la marca
                       if (item.marca === "DESON") {
-                        setModalAbierto(true); // ACTIVAMOS LA VENTANA
+                        navigate("/maquinas/maquinasIndividuales/DESON210");
+                        //setModalAbierto(true); // ACTIVAMOS LA VENTANA
                       } else {
                         console.log("Ruta no definida para este modelo");
                       }

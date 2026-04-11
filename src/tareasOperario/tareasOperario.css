@@ -11,19 +11,26 @@
   font-size: large;
   color: #000;
 }
+.table-container {
+  height: 98%;
+  width: 98%;
+}
 .table {
-  margin-left: 10px;
-  margin-right: 10px;
+  width: 98%;
   border: solid 2px #000;
   background-color: #9fa0a0;
 }
-.tableHead {
+.lineHead {
   display: grid;
   grid-template-columns: 10% 80% 10%;
 }
-.tableBody {
+.lineBody {
   display: grid;
   grid-template-columns: 10% 80% 10%;
+}
+.leftColum {
+  display: block;
+  text-align: center;
 }
 .centerColum {
   display: flex;
@@ -42,15 +49,15 @@
   box-sizing: border-box;
   white-space: normal !important;
 }
-
-.leftColum {
-  display: grid;
-  grid-template-rows: 50% 50%;
-  gap: 10px;
+.rightColum {
+  display: block;
   justify-content: flex-end;
 }
 .btn {
-  width: 90%;
-  height: 96%;
-  font-size: medium;
+  width: 100%;
+  height: 80%;
+  color: #000;
+  font-size: small;
+  text-align: center;
+  padding: 2px;
 }

@@ -1,59 +1,65 @@
 import "./App.css";
-import { Routes, Route, Link } from "react-router-dom";
+/*NUEVO*/
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
+// Importación de páginas
+import Login from "./pages/login";
+//ENCARGADO
 import Encargado from "./encargado/encargado";
+import Maquinasen from "./encargado/maquinasen/maquinasen";
+import Repuestosen from "./encargado/repuestosoen/repuestosen";
+import Deson210en from "./encargado/maquinasen/maquinasIndividuales/DESON210/DESON210";
+//OPERARIO
 import Operario from "./operario/operario";
-import Maquinas from "./maquinas/maquinas"; // Asegúrate que la ruta del import sea correcta
-import Repuestos from "./repuestos/repuestos";
+import Maquinasop from "./operario/maquinas/maquinasop"; // Asegúrate que la ruta del import sea correcta
+import Repuestosop from "./operario/repuestos/repuestos";
 import TareasOperario from "./tareasOperario/tareasOperario";
+import Deson210op from "./operario/maquinas/maquinasIndividuales/DESON210/DESON210";
 
+/* FIN NUEVO */
 function App() {
   return (
-    <div className="container-fluid vh-100 d-flex flex-column justify-content-center align-items-center bg-light">
+    <AuthProvider>
       <Routes>
-        {/* VISTA PRINCIPAL (EL HOME) */}
+        {/* 1. RUTA PÚBLICA */}
+        <Route path="/" element={<Login />} />
+
+        {/* 2. RUTAS EXCLUSIVAS PARA OPERARIOS */}
+        <Route element={<ProtectedRoute allowedRoles={["operario"]} />}>
+          <Route path="/operario" element={<Operario />} />
+          <Route path="/TareasOperario" element={<TareasOperario />} />
+          <Route path="/maquinas/maquinasop" element={<Maquinasop />} />
+          <Route path="/repuestos/repuestos" element={<Repuestosop />} />
+          {/* Si el operario también ve máquinas, se queda aquí */}
+          <Route
+            path="/maquinas/maquinasIndividuales/DESON210"
+            element={<Deson210op />}
+          />
+        </Route>
+
+        {/* 3. RUTAS EXCLUSIVAS PARA ENCARGADOS / ADMIN */}
         <Route
-          path="/"
-          element={
-            <div
-              className="card shadow-lg p-5 text-center"
-              style={{ width: "400px" }}
-            >
-              <h1 className="mb-4 text-primary fw-bold">PROYECTO TEXTIL</h1>
-              <p>En esta seccion debe elegir el usuario correspondiente</p>
-              <div className="d-grid gap-3">
-                {/* BOTÓN ENCARGADO MODIFICADO */}
-                <Link
-                  to="/encargado"
-                  className="btn btn-primary btn-lg shadow-sm"
-                >
-                  ENCARGADO
-                </Link>
+          element={<ProtectedRoute allowedRoles={["encargado", "admin"]} />}
+        >
+          <Route path="/encargado" element={<Encargado />} />
+          <Route path="/maquinasen/maquinasen" element={<Maquinasen />} />
+          <Route path="/repuestosen/repuestosen" element={<Repuestosen />} />
+          <Route
+            path="/maquinasen/maquinasIndividuales/DESON210"
+            element={<Deson210en />}
+          />
+          {/* El encargado suele tener su propia vista de máquinas o acceso total */}
+          {/* Si las páginas de máquinas son diferentes para el encargado, dejalas acá */}
+        </Route>
 
-                <Link
-                  to="/operario"
-                  className="btn btn-outline-secondary btn-lg shadow-sm"
-                >
-                  OPERARIO
-                </Link>
-              </div>
-              <footer className="mt-4 text-muted small">
-                Sistema de Gestión v1.0
-              </footer>
-            </div>
-          }
+        {/* 4. ERROR 404 / ACCESO DENEGADO */}
+        <Route
+          path="*"
+          element={<div>Esta página no existe o no tienes permiso.</div>}
         />
-
-        {/* RUTA PARA LA VENTANA ENCARGADO */}
-        <Route path="/encargado" element={<Encargado />} />
-        {/* RUTA PARAOPERARIO */}
-        <Route path="/operario" element={<Operario />} />
-        {/* Pantalla de la sección máquinas */}
-        <Route path="/maquinas" element={<Maquinas />} />
-        {/* Pantalla de la sección repuestos */}
-        <Route path="/repuestos" element={<Repuestos />} />
-        <Route path="/tareasOperario" element={<TareasOperario />} />
       </Routes>
-    </div>
+    </AuthProvider>
   );
 }
 
