@@ -82,6 +82,15 @@ function Maquinas() {
     });
   };
 
+  const limpiarTabla = () => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas borrar todas las máquinas de la tabla?",
+    );
+    if (confirmar) {
+      setMisMaquinas([]);
+    }
+  };
+
   const guardarMaquina = () => {
     if (inputs.marca === "" || inputs.modelo === "")
       return alert("Por favor, completa al menos la marca y el modelo");

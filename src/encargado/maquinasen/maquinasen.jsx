@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react"; // 1. Agregamos useEffect
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../../supabaseClient"; // 2. Importamos el cliente (ajusta la ruta si es necesario)
+import { supabase } from "../../supabaseClient";
 
 import "./maquinasen.css";
 import Deson210 from "./maquinasIndividuales/DESON210/DESON210";
 
-// --- 1. Definición del Portal ---
+// --- 1. Definición del Portal para Modales ---
 const ModalPortal = ({ children, onClose }) => {
   return createPortal(
     <div style={styles.overlay} onClick={onClose}>
@@ -22,9 +22,11 @@ const ModalPortal = ({ children, onClose }) => {
 };
 
 function Maquinasen() {
-  // Estado para la lista de máquinas (ahora empieza vacío)
-  const [misMaquinas, setMisMaquinas] = useState([]);
+  const navigate = useNavigate();
 
+  // --- ESTADOS ---
+  const [misMaquinas, setMisMaquinas] = useState([]);
+  const [modalAbierto, setModalAbierto] = useState(false);
   const [inputs, setInputs] = useState({
     marca: "",
     modelo: "",
@@ -33,29 +35,29 @@ function Maquinasen() {
     estado: "",
     lugar: "",
     observacion: "",
-    tipo: "",
+    tipo_maquina: "",
   });
 
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const navigate = useNavigate();
-
-  // --- 3. CARGAR DATOS DESDE SUPABASE ---
+  // --- 2. CARGAR DATOS AL INICIAR ---
   useEffect(() => {
     fetchMaquinas();
   }, []);
 
   async function fetchMaquinas() {
-    const { data, error } = await supabase
-      .from("maquinas") // Asegúrate de que tu tabla en Supabase se llame "maquinas"
-      .select("*");
+    try {
+      const { data, error } = await supabase
+        .from("proyecto_textil")
+        .select("*")
+        .order("id", { ascending: true });
 
-    if (error) {
-      console.error("Error cargando máquinas:", error);
-    } else {
+      if (error) throw error;
       setMisMaquinas(data || []);
+    } catch (error) {
+      console.error("Error al cargar datos:", error.message);
     }
   }
 
+  // --- 3. MANEJO DE CAMBIOS EN INPUTS ---
   const handleChangeMaquina = (e) => {
     setInputs({
       ...inputs,
@@ -63,20 +65,19 @@ function Maquinasen() {
     });
   };
 
-  // --- 4. GUARDAR EN SUPABASE ---
+  // --- 4. GUARDAR NUEVA MÁQUINA ---
   const guardarMaquina = async () => {
-    if (inputs.marca === "" || inputs.modelo === "")
+    if (inputs.marca.trim() === "" || inputs.modelo.trim() === "") {
       return alert("Por favor, completa al menos la marca y el modelo");
+    }
 
-    // Insertamos en la base de datos real
-    const { error } = await supabase.from("maquinas").insert([inputs]);
+    try {
+      const { error } = await supabase.from("proyecto_textil").insert([inputs]);
 
-    if (error) {
-      alert("Error al guardar en la base de datos");
-      console.error(error);
-    } else {
-      // Si se guardó bien, refrescamos la lista y limpiamos inputs
-      fetchMaquinas();
+      if (error) throw error;
+
+      // Refrescar lista y limpiar formulario
+      await fetchMaquinas();
       setInputs({
         marca: "",
         modelo: "",
@@ -85,15 +86,52 @@ function Maquinasen() {
         estado: "",
         lugar: "",
         observacion: "",
-        tipo: "",
+        tipo_maquina: "",
       });
+    } catch (error) {
+      alert("Error al guardar: " + error.message);
     }
   };
 
-  const handleHeaderClick = (e) => {
-    const th = e.target.closest("th");
-    if (th) {
-      alert("Columna seleccionada: " + th.innerText);
+  // --- 5. ELIMINAR UNA SOLA FILA ---
+  const eliminarMaquina = async (id) => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta máquina?",
+    );
+    if (confirmar) {
+      try {
+        const { error } = await supabase
+          .from("proyecto_textil")
+          .delete()
+          .eq("id", id); // Filtra por el ID único de la fila
+
+        if (error) throw error;
+
+        // Actualizar el estado local para que desaparezca de la vista inmediatamente
+        setMisMaquinas(misMaquinas.filter((maquina) => maquina.id !== id));
+      } catch (error) {
+        alert("Error al eliminar: " + error.message);
+      }
+    }
+  };
+
+  // --- 6. VACIAR TODA LA TABLA ---
+  const limpiarTablaBD = async () => {
+    const confirmar = window.confirm(
+      "¿ESTÁS SEGURO? Se borrarán TODOS los datos.",
+    );
+    if (confirmar) {
+      try {
+        const { error } = await supabase
+          .from("proyecto_textil")
+          .delete()
+          .neq("id", 0);
+
+        if (error) throw error;
+        setMisMaquinas([]);
+      } catch (error) {
+        alert("Error al vaciar: " + error.message);
+      }
     }
   };
 
@@ -105,37 +143,31 @@ function Maquinasen() {
 
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
+
         <div className="table-container">
-          <p>
-            En esta sección vemos cada una de las máquinas (Datos en Tiempo
-            Real)
-          </p>
+          <p>Gestión de Maquinaria en Tiempo Real</p>
           <table className="table table-hover">
             <thead>
-              <tr onClick={handleHeaderClick} style={{ cursor: "pointer" }}>
-                <th scope="col">MARCA</th>
-                <th scope="col">MODELO</th>
-                <th scope="col">SERIE</th>
-                <th scope="col">N° INVENTARIO</th>
-                <th scope="col">ESTADO</th>
-                <th scope="col">LUGAR FISICO</th>
-                <th scope="col">OBSERVACIONES</th>
-                <th scope="col">TIPO DE MAQUINA</th>
+              <tr>
+                <th>MARCA</th>
+                <th>MODELO</th>
+                <th>SERIE</th>
+                <th>N° INV.</th>
+                <th>ESTADO</th>
+                <th>LUGAR</th>
+                <th>TIPO</th>
+                <th style={{ textAlign: "center" }}>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
-              {misMaquinas.map((item, index) => (
-                <tr key={item.id || index}>
-                  {" "}
-                  {/* Usamos el id de la DB si existe */}
+              {misMaquinas.map((item) => (
+                <tr key={item.id}>
                   <th
                     scope="row"
                     style={{ cursor: "pointer", color: "blue" }}
                     onClick={() => {
-                      if (item.marca === "DESON") {
+                      if (item.marca?.toUpperCase() === "DESON") {
                         navigate("/maquinasen/maquinasIndividuales/DESON210");
-                      } else {
-                        console.log("Ruta no definida para este modelo");
                       }
                     }}
                   >
@@ -146,8 +178,15 @@ function Maquinasen() {
                   <td>{item.Ninventario}</td>
                   <td>{item.estado}</td>
                   <td>{item.lugar}</td>
-                  <td>{item.observacion}</td>
-                  <td>{item.tipo}</td>
+                  <td>{item.tipo_maquina}</td>
+                  <td style={{ textAlign: "center" }}>
+                    <button
+                      onClick={() => eliminarMaquina(item.id)}
+                      style={styles.btnEliminar}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -160,69 +199,74 @@ function Maquinasen() {
           )}
         </div>
 
-        {/* Sección de Inputs para cargar nuevas máquinas */}
+        {/* Formulario de Carga */}
         <div className="contenInputs">
           <div className="inputs">
             <input
               type="text"
               name="marca"
-              placeholder="marca"
+              placeholder="Marca"
               value={inputs.marca}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="modelo"
-              placeholder="modelo"
+              placeholder="Modelo"
               value={inputs.modelo}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="serie"
-              placeholder="serie"
+              placeholder="Serie"
               value={inputs.serie}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="Ninventario"
-              placeholder="Ninventario"
+              placeholder="N° Inv"
               value={inputs.Ninventario}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="estado"
-              placeholder="estado"
+              placeholder="Estado"
               value={inputs.estado}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="lugar"
-              placeholder="lugar"
+              placeholder="Lugar"
               value={inputs.lugar}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
               name="observacion"
-              placeholder="observacion"
+              placeholder="Observación"
               value={inputs.observacion}
               onChange={handleChangeMaquina}
             />
             <input
               type="text"
-              name="tipo"
-              placeholder="tipo"
-              value={inputs.tipo}
+              name="tipo_maquina"
+              placeholder="Tipo"
+              value={inputs.tipo_maquina}
               onChange={handleChangeMaquina}
             />
           </div>
+
           <div className="contenGuardar">
             <button className="guardar" onClick={guardarMaquina}>
-              GUARDAR DATOS EN LA NUBE
+              GUARDAR DATOS
+            </button>
+
+            <button onClick={limpiarTablaBD} style={styles.btnVaciar}>
+              VACIAR BASE DE DATOS
             </button>
           </div>
         </div>
@@ -231,9 +275,7 @@ function Maquinasen() {
   );
 }
 
-export default Maquinasen;
-
-// Estilos del Modal (se mantienen iguales)
+// --- ESTILOS INLINE ---
 const styles = {
   overlay: {
     position: "fixed",
@@ -254,7 +296,6 @@ const styles = {
     borderRadius: "12px",
     overflowY: "auto",
     position: "relative",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
     padding: "20px",
   },
   closeBtn: {
@@ -266,4 +307,25 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold",
   },
+  btnEliminar: {
+    backgroundColor: "#ff4d4d",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "6px 12px",
+    cursor: "pointer",
+    fontSize: "0.85rem",
+  },
+  btnVaciar: {
+    backgroundColor: "#e74c3c",
+    color: "white",
+    padding: "10px 20px",
+    marginLeft: "15px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
 };
+
+export default Maquinasen;
