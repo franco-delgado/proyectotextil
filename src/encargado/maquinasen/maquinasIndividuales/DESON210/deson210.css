@@ -1,11 +1,8 @@
-table {
-  z-index: 3;
-}
 .conten {
   background-color: #9fa0a0;
   margin: auto;
   margin-top: 100px;
-  padding: auto;
+  padding: 2px;
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -16,9 +13,16 @@ p {
   text-align: center;
   font-size: 20px;
 }
-.contenTabla {
-  height: 80%;
-  width: 86%;
+.contenTablaDESO {
+  height: 96%;
+  width: 96%;
+}
+.tableDESON {
+  width: 100%;
+  font-size: small;
+  z-index: 3;
+  border: solid 2px #000;
+  background-color: #dcdddd;
 }
 th {
   cursor: pointer;
