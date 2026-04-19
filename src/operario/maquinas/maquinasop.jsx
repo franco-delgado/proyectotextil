@@ -1,6 +1,7 @@
-import React, { useState } from "react"; // Agregamos { useState } aquí
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
 import "./maquinas.css";
 import Deson210 from "./maquinasIndividuales/DESON210/DESON210"; // Asegúrate que la ruta del import sea correcta
@@ -8,9 +9,9 @@ import Deson210 from "./maquinasIndividuales/DESON210/DESON210"; // Asegúrate q
 // --- 1. Definición del Portal (Fuera del componente principal) ---
 const ModalPortal = ({ children, onClose }) => {
   return createPortal(
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <button style={styles.closeBtn} onClick={onClose}>
+    <div className="overlay" onClick={onClose}>
+      <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+        <button className="closeBtn" onClick={onClose}>
           Cerrar Ventana ×
         </button>
         {children}
@@ -21,49 +22,11 @@ const ModalPortal = ({ children, onClose }) => {
 };
 
 function Maquinas() {
-  const [misMaquinas, setMisMaquinas] = useState([
-    {
-      marca: "DESON",
-      modelo: "DS-3020H",
-      serie: "210",
-      Ninventario: "1A",
-      estado: "EN PRODUCCION",
-      lugar: "LIEA",
-      observacion: "EXCELENTE",
-      tipo: "PLANA",
-    },
-    {
-      marca: "CONSEW",
-      modelo: "DS-3066J",
-      serie: "410",
-      Ninventario: "8B",
-      estado: "EN MANTENIMIENTO",
-      lugar: "LIEA-J",
-      observacion: "--------",
-      tipo: "CINTURERA",
-    },
-    {
-      marca: "DESON",
-      modelo: "DS-3020H",
-      serie: "210",
-      Ninventario: "1A",
-      estado: "EN PRODUCCION",
-      lugar: "LIEA",
-      observacion: "EXCELENTE",
-      tipo: "PLANA",
-    },
-    {
-      marca: "DESON",
-      modelo: "DS-3020H",
-      serie: "210",
-      Ninventario: "1A",
-      estado: "EN PRODUCCION",
-      lugar: "LIEA",
-      observacion: "EXCELENTE",
-      tipo: "PLANA",
-    },
-  ]);
+  const navigate = useNavigate();
 
+  // --- ESTADOS ---
+  const [misMaquinas, setMisMaquinas] = useState([]);
+  const [modalAbierto, setModalAbierto] = useState(false);
   const [inputs, setInputs] = useState({
     marca: "",
     modelo: "",
@@ -72,9 +35,29 @@ function Maquinas() {
     estado: "",
     lugar: "",
     observacion: "",
-    tipo: "",
+    tipo_maquina: "",
   });
 
+  // --- 2. CARGAR DATOS AL INICIAR ---
+  useEffect(() => {
+    fetchMaquinas();
+  }, []);
+
+  async function fetchMaquinas() {
+    try {
+      const { data, error } = await supabase
+        .from("proyecto_textil")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (error) throw error;
+      setMisMaquinas(data || []);
+    } catch (error) {
+      console.error("Error al cargar datos:", error.message);
+    }
+  }
+
+  // --- 3. MANEJO DE CAMBIOS EN INPUTS ---
   const handleChangeMaquina = (e) => {
     setInputs({
       ...inputs,
@@ -82,78 +65,38 @@ function Maquinas() {
     });
   };
 
-  const limpiarTabla = () => {
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas borrar todas las máquinas de la tabla?",
-    );
-    if (confirmar) {
-      setMisMaquinas([]);
-    }
-  };
-
-  const guardarMaquina = () => {
-    if (inputs.marca === "" || inputs.modelo === "")
-      return alert("Por favor, completa al menos la marca y el modelo");
-
-    setMisMaquinas([...misMaquinas, inputs]);
-
-    setInputs({
-      marca: "",
-      modelo: "",
-      serie: "",
-      Ninventario: "",
-      estado: "",
-      lugar: "",
-      observacion: "",
-      tipo: "",
-    });
-  };
-
-  const handleHeaderClick = (e) => {
-    const th = e.target.closest("th");
-    if (th) {
-      alert("Columna seleccionada: " + th.innerText);
-    }
-  };
-  const [modalAbierto, setModalAbierto] = useState(false);
-
-  const navigate = useNavigate();
   return (
     <>
       <div className="barraSuperior">
-        <button onClick={() => navigate("../operario")}>Regresar</button>
+        <button onClick={() => navigate("../encargado")}>Regresar</button>
       </div>
 
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
+
         <div className="table-container">
-          <p>En esta seccion vemos cada una de las maquinas</p>
+          <p>Gestión de Maquinaria en Tiempo Real</p>
           <table className="table table-hover">
             <thead>
-              <tr onClick={handleHeaderClick} style={{ cursor: "pointer" }}>
-                <th scope="col">MARCA</th>
-                <th scope="col">MODELO</th>
-                <th scope="col">SERIE</th>
-                <th scope="col">N° INVENTARIO</th>
-                <th scope="col">ESTADO</th>
-                <th scope="col">LUGAR FISICO</th>
-                <th scope="col">OBSERVACIONES</th>
-                <th scope="col">TIPO DE MAQUINA</th>
+              <tr>
+                <th>MARCA</th>
+                <th>MODELO</th>
+                <th>SERIE</th>
+                <th>N° INV.</th>
+                <th>ESTADO</th>
+                <th>LUGAR</th>
+                <th>TIPO</th>
               </tr>
             </thead>
             <tbody>
-              {misMaquinas.map((item, index) => (
-                <tr key={index}>
+              {misMaquinas.map((item) => (
+                <tr key={item.id}>
                   <th
                     scope="row"
                     style={{ cursor: "pointer", color: "blue" }}
                     onClick={() => {
-                      // Validamos la marca
-                      if (item.marca === "DESON") {
+                      if (item.marca?.toUpperCase() === "DESON") {
                         navigate("/maquinas/maquinasIndividuales/DESON210");
-                        //setModalAbierto(true); // ACTIVAMOS LA VENTANA
-                      } else {
-                        console.log("Ruta no definida para este modelo");
                       }
                     }}
                   >
@@ -164,84 +107,17 @@ function Maquinas() {
                   <td>{item.Ninventario}</td>
                   <td>{item.estado}</td>
                   <td>{item.lugar}</td>
-                  <td>{item.observacion}</td>
-                  <td>{item.tipo}</td>
+                  <td>{item.tipo_maquina}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* Lógica del Portal: Si mostrarDetalle es true, abre la ventana */}
           {modalAbierto && (
             <ModalPortal onClose={() => setModalAbierto(false)}>
               <Deson210 />
             </ModalPortal>
           )}
-        </div>
-        <div className="contenInputs">
-          <div className="inputs">
-            <input
-              type="text"
-              name="marca"
-              placeholder="marca"
-              value={inputs.marca}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="modelo"
-              placeholder="modelo"
-              value={inputs.modelo}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="serie"
-              placeholder="serie"
-              value={inputs.serie}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="Ninventario"
-              placeholder="Ninventario"
-              value={inputs.Ninventario}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="estado"
-              placeholder="estado"
-              value={inputs.estado}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="lugar"
-              placeholder="lugar"
-              value={inputs.lugar}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="observacion"
-              placeholder="observacion"
-              value={inputs.observacion}
-              onChange={handleChangeMaquina}
-            />
-            <input
-              type="text"
-              name="tipo"
-              placeholder="tipo"
-              value={inputs.tipo}
-              onChange={handleChangeMaquina}
-            />
-          </div>
-          <div className="contenGuardar">
-            <button className="guardar" onClick={guardarMaquina}>
-              GUARDAR DATOS
-            </button>
-          </div>
         </div>
       </div>
     </>
@@ -251,47 +127,3 @@ function Maquinas() {
 export default Maquinas;
 
 // PEGA ESTO AL FINAL DE TU ARCHIVO maquinas.jsx (fuera de cualquier función)
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.85)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    width: "95%",
-    height: "90%",
-    borderRadius: "12px",
-    overflowY: "auto",
-    position: "relative",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-    padding: "20px",
-  },
-  header: {
-    padding: "10px",
-    borderBottom: "1px solid #ddd",
-    display: "flex",
-    justifyContent: "flex-end",
-    backgroundColor: "#f8f9fa",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-  },
-  closeBtn: {
-    padding: "8px 16px",
-    backgroundColor: "#dc3545",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-};

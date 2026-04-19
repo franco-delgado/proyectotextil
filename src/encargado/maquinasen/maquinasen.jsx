@@ -9,9 +9,9 @@ import Deson210 from "./maquinasIndividuales/DESON210/DESON210";
 // --- 1. Definición del Portal para Modales ---
 const ModalPortal = ({ children, onClose }) => {
   return createPortal(
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <button style={styles.closeBtn} onClick={onClose}>
+    <div className="overlay" onClick={onClose}>
+      <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+        <button className="closeBtn" onClick={onClose}>
           Cerrar Ventana ×
         </button>
         {children}
@@ -182,7 +182,7 @@ function Maquinasen() {
                   <td style={{ textAlign: "center" }}>
                     <button
                       onClick={() => eliminarMaquina(item.id)}
-                      style={styles.btnEliminar}
+                      className="btnEliminar"
                     >
                       Eliminar
                     </button>
@@ -265,7 +265,7 @@ function Maquinasen() {
               GUARDAR DATOS
             </button>
 
-            <button onClick={limpiarTablaBD} style={styles.btnVaciar}>
+            <button className="btnVaciar" onClick={limpiarTablaBD}>
               VACIAR BASE DE DATOS
             </button>
           </div>
@@ -274,58 +274,5 @@ function Maquinasen() {
     </>
   );
 }
-
-// --- ESTILOS INLINE ---
-const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.85)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    width: "95%",
-    height: "90%",
-    borderRadius: "12px",
-    overflowY: "auto",
-    position: "relative",
-    padding: "20px",
-  },
-  closeBtn: {
-    padding: "8px 16px",
-    backgroundColor: "#dc3545",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-  btnEliminar: {
-    backgroundColor: "#ff4d4d",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    padding: "6px 12px",
-    cursor: "pointer",
-    fontSize: "0.85rem",
-  },
-  btnVaciar: {
-    backgroundColor: "#e74c3c",
-    color: "white",
-    padding: "10px 20px",
-    marginLeft: "15px",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-};
 
 export default Maquinasen;

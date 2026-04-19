@@ -12,6 +12,7 @@ function Deson210() {
       repuestos: "correa A327",
       observaciones: "detalles mas especificos",
       prfecha: "20/03/2026",
+      operario: "Adolfo",
     },
     {
       fecha: "20/03/2026",
@@ -19,6 +20,7 @@ function Deson210() {
       repuestos: " ",
       observaciones: "detalles mas especificos",
       prfecha: "20/09/2026",
+      operario: "Adolfo",
     },
   ]);
 
@@ -29,6 +31,7 @@ function Deson210() {
     repuestos: "",
     observaciones: "",
     prfecha: "",
+    operario: "",
   });
 
   // 3. FUNCIÓN PARA CAPTURAR CAMBIOS (Corregido: ahora usa 'inputs')
@@ -54,6 +57,7 @@ function Deson210() {
       repuestos: "",
       observaciones: "",
       prfecha: "",
+      operario: "",
     });
   };
 
@@ -87,6 +91,7 @@ function Deson210() {
                 <th scope="col">REPUESTOS QUE SE CAMBIARON</th>
                 <th scope="col">OBSERVACIONES</th>
                 <th scope="col">PROXIMA FECHA</th>
+                <th scope="col">OPERARIO</th>
               </tr>
             </thead>
             <tbody>
@@ -103,6 +108,7 @@ function Deson210() {
                   <td>{item.repuestos}</td>
                   <td>{item.observaciones}</td>
                   <td>{item.prfecha}</td>
+                  <td>{item.operario}</td>
                 </tr>
               ))}
             </tbody>
@@ -145,6 +151,13 @@ function Deson210() {
               name="prfecha"
               placeholder="Proxima fecha"
               value={inputs.prfecha}
+              onChange={handleChange}
+            />
+            <input
+              type="text"
+              name="operario"
+              placeholder="Operario"
+              value={inputs.operario}
               onChange={handleChange}
             />
           </div>
