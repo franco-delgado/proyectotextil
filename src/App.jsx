@@ -10,12 +10,13 @@ import Encargado from "./encargado/encargado";
 import Maquinasen from "./encargado/maquinasen/maquinasen";
 import Repuestosen from "./encargado/repuestosoen/repuestosen";
 import Deson210en from "./encargado/maquinasen/maquinasIndividuales/DESON210/DESON210";
+import Individuales from "./encargado/maquinasen/maquinasIndividuales/index";
 //OPERARIO
 import Operario from "./operario/operario";
 import Maquinasop from "./operario/maquinas/maquinasop"; // Asegúrate que la ruta del import sea correcta
 import Repuestosop from "./operario/repuestos/repuestos";
 import TareasOperario from "./tareasOperario/tareasOperario";
-import Deson210op from "./operario/maquinas/maquinasIndividuales/DESON210/DESON210";
+import Individualesop from "./operario/maquinas/maquinasIndividuales/index"; // Asegúrate que la ruta del import sea correcta
 
 /* FIN NUEVO */
 function App() {
@@ -31,11 +32,11 @@ function App() {
           <Route path="/TareasOperario" element={<TareasOperario />} />
           <Route path="/maquinas/maquinasop" element={<Maquinasop />} />
           <Route path="/repuestos/repuestos" element={<Repuestosop />} />
-          {/* Si el operario también ve máquinas, se queda aquí */}
           <Route
-            path="/maquinas/maquinasIndividuales/DESON210"
-            element={<Deson210op />}
+            path="/maquinas/maquinasIndividuales/:nombreMaquina"
+            element={<Individualesop />}
           />
+          {/* Si el operario también ve máquinas, se queda aquí */}
         </Route>
 
         {/* 3. RUTAS EXCLUSIVAS PARA ENCARGADOS / ADMIN */}
@@ -45,9 +46,10 @@ function App() {
           <Route path="/encargado" element={<Encargado />} />
           <Route path="/maquinasen/maquinasen" element={<Maquinasen />} />
           <Route path="/repuestosen/repuestosen" element={<Repuestosen />} />
+          // Dentro de tus Routes
           <Route
-            path="/maquinasen/maquinasIndividuales/DESON210"
-            element={<Deson210en />}
+            path="/maquinasen/maquinasIndividuales/:nombreMaquina"
+            element={<Individuales />}
           />
           {/* El encargado suele tener su propia vista de máquinas o acceso total */}
           {/* Si las páginas de máquinas son diferentes para el encargado, dejalas acá */}

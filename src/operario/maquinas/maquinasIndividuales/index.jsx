@@ -1,14 +1,13 @@
-import { Link, useParams } from "react-router-dom"; // Importamos useParams
+import { Link, useParams } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../../../supabaseClient";
+import { supabase } from "../../../supabaseClient";
 import "./deson210.css";
 
-function Deson210() {
-  // Capturamos el parámetro de la URL.
-  // Asegúrate que en tu App.js la ruta sea algo como: "/maquinasen/maquinasIndividuales/:nombreMaquina"
+function Individualesop() {
   const { nombreMaquina } = useParams();
 
   const [miMaquina, setMiMaquina] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [inputs, setInputs] = useState({
     fecha: "",
     mantenimiento: "",
@@ -18,21 +17,30 @@ function Deson210() {
     operario: "",
   });
 
+  // Solo cargamos el historial al entrar
   useEffect(() => {
-    fetchMiMaquina();
-  }, [nombreMaquina]); // Se vuelve a ejecutar si el nombre de la máquina cambia
+    if (nombreMaquina) {
+      fetchMiMaquina();
+    }
+  }, [nombreMaquina]);
 
   async function fetchMiMaquina() {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from("maquina_individual")
         .select("*")
-        .eq("nombre_maquina", nombreMaquina); // FILTRAMOS por la máquina seleccionada
+        .eq("nombre_maquina", nombreMaquina)
+        .order("id", { ascending: false });
 
+      // Si el error es porque la columna no existe, revisa el Dashboard de Supabase
       if (error) throw error;
+
       setMiMaquina(data || []);
     } catch (error) {
-      console.error("Error al cargar datos:", error.message);
+      console.error("Error al cargar historial:", error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -44,19 +52,17 @@ function Deson210() {
   };
 
   const guardarRegistro = async () => {
-    if (inputs.fecha.trim() === "") {
-      return alert("Por favor, completa al menos la fecha");
+    // Validación mínima
+    if (!inputs.fecha.trim() || !inputs.operario.trim()) {
+      return alert("Por favor, completa al menos la fecha y el operario.");
     }
 
     try {
+      // Aquí es donde ocurre la magia:
+      // Se guarda el nombre de la máquina JUNTO con los inputs del formulario
       const datosAGuardar = {
-        fecha: inputs.fecha,
-        mantenimiento: inputs.mantenimiento,
-        repuestos: inputs.repuestos,
-        observaciones: inputs.observaciones,
-        prfecha: inputs.prfecha,
-        operario: inputs.operario,
-        nombre_maquina: nombreMaquina, // IMPORTANTE: Guardamos a qué máquina pertenece este registro
+        ...inputs,
+        nombre_maquina: nombreMaquina,
       };
 
       const { error } = await supabase
@@ -65,9 +71,9 @@ function Deson210() {
 
       if (error) throw error;
 
-      alert("¡Datos guardados con éxito!");
-      await fetchMiMaquina();
+      alert(`¡Registro guardado para la máquina ${nombreMaquina}!`);
 
+      // Limpiamos los campos para un nuevo ingreso
       setInputs({
         fecha: "",
         mantenimiento: "",
@@ -76,15 +82,17 @@ function Deson210() {
         prfecha: "",
         operario: "",
       });
+
+      // Refrescamos la tabla para ver el nuevo registro
+      await fetchMiMaquina();
     } catch (error) {
-      console.error("Error detallado:", error);
-      alert("Error al guardar: " + error.message);
+      console.error("Error al guardar:", error);
+      alert("No se pudo guardar: " + error.message);
     }
   };
 
-  const eliminarMaquina = async (id) => {
-    const confirmar = window.confirm("¿Estás seguro?");
-    if (confirmar) {
+  /*const eliminarMaquina = async (id) => {
+    if (window.confirm("¿Estás seguro de eliminar este registro?")) {
       try {
         const { error } = await supabase
           .from("maquina_individual")
@@ -92,60 +100,62 @@ function Deson210() {
           .eq("id", id);
 
         if (error) throw error;
-        setMiMaquina(miMaquina.filter((maquina) => maquina.id !== id));
+        setMiMaquina(miMaquina.filter((m) => m.id !== id));
       } catch (error) {
         alert("Error al eliminar: " + error.message);
       }
     }
-  };
+  };*/
 
   return (
     <>
       <div className="barraSuperior">
-        <Link to="/maquinasen/maquinasen" className="back">
+        <Link to="/maquinas/maquinasop" className="back">
           REGRESAR
         </Link>
       </div>
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
-        {/* Ahora el título es dinámico */}
-        <h3 style={{ textTransform: "uppercase" }}>{nombreMaquina}</h3>
+        <h3 style={{ textTransform: "uppercase" }}>Máquina: {nombreMaquina}</h3>
 
         <div className="contenTablaDESO">
-          <p>Historial individual de mantenimiento.</p>
+          <p>Historial de mantenimiento</p>
           <table className="tableDESON">
             <thead>
               <tr>
-                <th scope="col">FECHA</th>
-                <th scope="col">TIPO MANTENIMIENTO</th>
-                <th scope="col">REPUESTOS</th>
-                <th scope="col">OBSERVACIONES</th>
-                <th scope="col">PROXIMA FECHA</th>
-                <th scope="col">OPERARIO</th>
-                <th style={{ textAlign: "center" }}>ACCIONES</th>
+                <th>FECHA</th>
+                <th>MANTENIMIENTO</th>
+                <th>REPUESTOS</th>
+                <th>OBSERVACIONES</th>
+                <th>PRÓX. FECHA</th>
+                <th>OPERARIO</th>
+                <th>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
-              {miMaquina.map((item) => (
-                <tr key={item.id}>
-                  <th scope="row" style={{ color: "blue" }}>
-                    {item.fecha}
-                  </th>
-                  <td>{item.mantenimiento}</td>
-                  <td>{item.repuestos}</td>
-                  <td>{item.observaciones}</td>
-                  <td>{item.prfecha}</td>
-                  <td>{item.operario}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      onClick={() => eliminarMaquina(item.id)}
-                      className="btnEliminar"
-                    >
-                      Eliminar
-                    </button>
+              {loading ? (
+                <tr>
+                  <td colSpan="7">Cargando...</td>
+                </tr>
+              ) : miMaquina.length > 0 ? (
+                miMaquina.map((item) => (
+                  <tr key={item.id}>
+                    <td style={{ color: "blue" }}>{item.fecha}</td>
+                    <td>{item.mantenimiento}</td>
+                    <td>{item.repuestos}</td>
+                    <td>{item.observaciones}</td>
+                    <td>{item.prfecha}</td>
+                    <td>{item.operario}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7">
+                    No hay registros previos para esta máquina. Ingrese el
+                    primero abajo.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -183,7 +193,7 @@ function Deson210() {
             <input
               type="text"
               name="prfecha"
-              placeholder="Proxima fecha"
+              placeholder="Próxima fecha"
               value={inputs.prfecha}
               onChange={handleChange}
             />
@@ -206,4 +216,4 @@ function Deson210() {
   );
 }
 
-export default Deson210;
+export default Individualesop;

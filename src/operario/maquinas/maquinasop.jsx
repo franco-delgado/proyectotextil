@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
 import "./maquinas.css";
-import Deson210 from "./maquinasIndividuales/DESON210/DESON210"; // Asegúrate que la ruta del import sea correcta
+// Si vas a usar navegación por ruta, quizás no necesites el import de Individualesop aquí,
+// a menos que lo uses dentro del ModalPortal.
 
-// --- 1. Definición del Portal (Fuera del componente principal) ---
 const ModalPortal = ({ children, onClose }) => {
   return createPortal(
     <div className="overlay" onClick={onClose}>
@@ -23,22 +23,9 @@ const ModalPortal = ({ children, onClose }) => {
 
 function Maquinas() {
   const navigate = useNavigate();
-
-  // --- ESTADOS ---
   const [misMaquinas, setMisMaquinas] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [inputs, setInputs] = useState({
-    marca: "",
-    modelo: "",
-    serie: "",
-    Ninventario: "",
-    estado: "",
-    lugar: "",
-    observacion: "",
-    tipo_maquina: "",
-  });
 
-  // --- 2. CARGAR DATOS AL INICIAR ---
   useEffect(() => {
     fetchMaquinas();
   }, []);
@@ -46,7 +33,7 @@ function Maquinas() {
   async function fetchMaquinas() {
     try {
       const { data, error } = await supabase
-        .from("proyecto_textil")
+        .from("proyecto_textil") // Tabla principal de máquinas
         .select("*")
         .order("id", { ascending: true });
 
@@ -57,29 +44,22 @@ function Maquinas() {
     }
   }
 
-  // --- 3. MANEJO DE CAMBIOS EN INPUTS ---
-  const handleChangeMaquina = (e) => {
-    setInputs({
-      ...inputs,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   return (
     <>
       <div className="barraSuperior">
-        <button onClick={() => navigate("../encargado")}>Regresar</button>
+        {/* Cambié la ruta de regreso para que sea relativa o directa al panel de operario */}
+        <button onClick={() => navigate(-1)}>Regresar</button>
       </div>
 
       <div className="conten">
-        <h1>PROYECTO TEXTIL</h1>
+        <h1>PROYECTO TEXTIL - OPERARIOS</h1>
 
         <div className="table-container">
           <p>Gestión de Maquinaria en Tiempo Real</p>
           <table className="table table-hover">
             <thead>
               <tr>
-                <th>MARCA</th>
+                <th>MARCA (VER DETALLE)</th>
                 <th>MODELO</th>
                 <th>SERIE</th>
                 <th>N° INV.</th>
@@ -93,11 +73,15 @@ function Maquinas() {
                 <tr key={item.id}>
                   <th
                     scope="row"
-                    style={{ cursor: "pointer", color: "blue" }}
+                    style={{
+                      cursor: "pointer",
+                      color: "#007bff",
+                      textDecoration: "underline",
+                    }}
                     onClick={() => {
-                      if (item.marca?.toUpperCase() === "DESON") {
-                        navigate("/maquinas/maquinasIndividuales/DESON210");
-                      }
+                      // IMPORTANTE: Esta ruta debe ser la misma que usas en el panel de encargado
+                      // para que ambos vean el mismo historial.
+                      navigate(`/maquinas/maquinasIndividuales/${item.marca}`);
                     }}
                   >
                     {item.marca}
@@ -112,12 +96,6 @@ function Maquinas() {
               ))}
             </tbody>
           </table>
-
-          {modalAbierto && (
-            <ModalPortal onClose={() => setModalAbierto(false)}>
-              <Deson210 />
-            </ModalPortal>
-          )}
         </div>
       </div>
     </>
@@ -125,5 +103,3 @@ function Maquinas() {
 }
 
 export default Maquinas;
-
-// PEGA ESTO AL FINAL DE TU ARCHIVO maquinas.jsx (fuera de cualquier función)

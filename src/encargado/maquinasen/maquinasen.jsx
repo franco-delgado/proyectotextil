@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
 import "./maquinasen.css";
-import Deson210 from "./maquinasIndividuales/DESON210/DESON210";
+//import Deson210 from "./maquinasIndividuales/DESON210/DESON210";
+
+import individuales from "./maquinasIndividuales";
 
 // --- 1. Definición del Portal para Modales ---
 const ModalPortal = ({ children, onClose }) => {
@@ -166,9 +168,11 @@ function Maquinasen() {
                     scope="row"
                     style={{ cursor: "pointer", color: "blue" }}
                     onClick={() => {
-                      if (item.marca?.toUpperCase() === "DESON") {
-                        navigate("/maquinasen/maquinasIndividuales/DESON210");
-                      }
+                      // Eliminamos el IF y usamos el valor de item.marca (o item.id si prefieres)
+                      // Usamos Template Literals (las comillas invertidas ``) para insertar la variable
+                      navigate(
+                        `/maquinasen/maquinasIndividuales/${item.marca}`,
+                      );
                     }}
                   >
                     {item.marca}
@@ -194,7 +198,7 @@ function Maquinasen() {
 
           {modalAbierto && (
             <ModalPortal onClose={() => setModalAbierto(false)}>
-              <Deson210 />
+              <individuales />
             </ModalPortal>
           )}
         </div>
