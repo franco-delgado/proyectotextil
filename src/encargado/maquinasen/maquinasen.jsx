@@ -146,7 +146,7 @@ function Maquinasen() {
       <div className="conten">
         <h1>PROYECTO TEXTIL</h1>
 
-        <div className="table-container">
+        <div className="tableContainer">
           <p>Gestión de Maquinaria en Tiempo Real</p>
           <table className="table table-hover">
             <thead>
@@ -204,8 +204,8 @@ function Maquinasen() {
         </div>
 
         {/* Formulario de Carga */}
-        <div className="contenInputs">
-          <div className="inputs">
+        <div className="contenInputsen">
+          <div className="inputsen">
             <input
               type="text"
               name="marca"
