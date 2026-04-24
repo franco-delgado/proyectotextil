@@ -9,7 +9,7 @@ import Login from "./pages/login";
 import Encargado from "./encargado/encargado";
 import Maquinasen from "./encargado/maquinasen/maquinasen";
 import Repuestosen from "./encargado/repuestosoen/repuestosen";
-import Deson210en from "./encargado/maquinasen/maquinasIndividuales/DESON210/DESON210";
+//import Deson210en from "./encargado/maquinasen/maquinasIndividuales/DESON210/DESON210";
 import Individuales from "./encargado/maquinasen/maquinasIndividuales/index";
 //OPERARIO
 import Operario from "./operario/operario";

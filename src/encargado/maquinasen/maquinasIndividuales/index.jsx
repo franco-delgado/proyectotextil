@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../supabaseClient";
-import "./DESON210/deson210.css";
+import "./deson.css";
 
 function Individuales() {
   const { nombreMaquina } = useParams();
@@ -114,22 +114,22 @@ function Individuales() {
           REGRESAR
         </Link>
       </div>
-      <div className="conten">
+      <div className="contenIn">
         <h1>PROYECTO TEXTIL</h1>
         <h3 style={{ textTransform: "uppercase" }}>Máquina: {nombreMaquina}</h3>
 
+        <p>Historial de mantenimiento</p>
         <div className="contenTablaDESO">
-          <p>Historial de mantenimiento</p>
           <table className="tableDESON">
             <thead>
               <tr>
-                <th>FECHA</th>
-                <th>MANTENIMIENTO</th>
-                <th>REPUESTOS</th>
-                <th>OBSERVACIONES</th>
-                <th>PRÓX. FECHA</th>
-                <th>OPERARIO</th>
-                <th>ACCIONES</th>
+                <th className="classTH">FECHA</th>
+                <th className="classTH">MANTENIMIENTO</th>
+                <th className="classTH">REPUESTOS</th>
+                <th className="classTH">OBSERVACIONES</th>
+                <th className="classTH">PRÓX. FECHA</th>
+                <th className="classTH">OPERARIO</th>
+                <th className="classTH">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -166,57 +166,57 @@ function Individuales() {
               )}
             </tbody>
           </table>
-        </div>
 
-        <div className="contenInputs">
-          <div className="inputs">
-            <input
-              type="text"
-              name="fecha"
-              placeholder="Fecha Actual"
-              value={inputs.fecha}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="mantenimiento"
-              placeholder="Tipo de mantenimiento"
-              value={inputs.mantenimiento}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="repuestos"
-              placeholder="Repuestos"
-              value={inputs.repuestos}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="observaciones"
-              placeholder="Observaciones"
-              value={inputs.observaciones}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="prfecha"
-              placeholder="Próxima fecha"
-              value={inputs.prfecha}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="operario"
-              placeholder="Operario"
-              value={inputs.operario}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="contenGuardar">
-            <button className="guardar" onClick={guardarRegistro}>
-              GUARDAR DATOS
-            </button>
+          <div className="contenInputsIn">
+            <div className="inputsIn">
+              <input
+                type="text"
+                name="fecha"
+                placeholder="Fecha Actual"
+                value={inputs.fecha}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="mantenimiento"
+                placeholder="Tipo de mantenimiento"
+                value={inputs.mantenimiento}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="repuestos"
+                placeholder="Repuestos"
+                value={inputs.repuestos}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="observaciones"
+                placeholder="Observaciones"
+                value={inputs.observaciones}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="prfecha"
+                placeholder="Próxima fecha"
+                value={inputs.prfecha}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="operario"
+                placeholder="Operario"
+                value={inputs.operario}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="contenGuardar">
+              <button className="guardar" onClick={guardarRegistro}>
+                GUARDAR DATOS
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ p {
 .contenTablaDESO {
   height: 96%;
   width: 96%;
+  margin-left: 2%;
 }
 .tableDESON {
   width: 100%;
@@ -27,14 +28,14 @@ p {
 th {
   cursor: pointer;
 }
-.contenInputs {
+.contenInputsIn {
   height: 600px;
   width: 100%;
   display: grid;
   grid-template-rows: 70% 30%;
 }
-.inputs {
-  height: 90%px;
+.inputsIn {
+  height: 90%;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -55,4 +56,40 @@ input {
   width: 120px;
   margin: 0;
   border: 2px solid #000;
+}
+
+@media screen and (max-width: 600px) {
+  .contenIn {
+    align-items: center;
+  }
+  .contenTablaDESO {
+    max-width: 90%;
+    overflow-y: auto;
+    display: flex; /* Activamos flexbox */
+    flex-direction: column; /* Apilamos los elementos verticalmente */
+    margin-left: 5%;
+  }
+
+  .tableDESON,
+  .contenInputsIn {
+    width: 550px; /* Ambos ocuparán el 100% del ancho del padre */
+    box-sizing: border-box; /* Fundamental para que el borde no sume ancho extra */
+  }
+  .classTH {
+    font-size: 12px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  .inputsIn {
+    height: 90%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    z-index: 1;
+    background-color: rgba(80, 80, 80, 0.425);
+  }
+  input {
+    height: 60px;
+    width: 100%;
+  }
 }
