@@ -8,6 +8,11 @@ function Individualesop() {
 
   const [miMaquina, setMiMaquina] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // --- NUEVOS ESTADOS PARA AUTOCOMPLETADO ---
+  const [sugerencias, setSugerencias] = useState([]);
+  const [mostrarSug, setMostrarSug] = useState(false);
+
   const [inputs, setInputs] = useState({
     fecha: "",
     mantenimiento: "",
@@ -17,7 +22,6 @@ function Individualesop() {
     operario: "",
   });
 
-  // Solo cargamos el historial al entrar
   useEffect(() => {
     if (nombreMaquina) {
       fetchMiMaquina();
@@ -33,9 +37,7 @@ function Individualesop() {
         .eq("nombre_maquina", nombreMaquina)
         .order("id", { ascending: false });
 
-      // Si el error es porque la columna no existe, revisa el Dashboard de Supabase
       if (error) throw error;
-
       setMiMaquina(data || []);
     } catch (error) {
       console.error("Error al cargar historial:", error.message);
@@ -44,36 +46,85 @@ function Individualesop() {
     }
   }
 
-  const handleChange = (e) => {
-    setInputs({
-      ...inputs,
-      [e.target.name]: e.target.value,
-    });
+  // --- HANDLE CHANGE ADAPTADO CON BUSQUEDA ---
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setInputs({ ...inputs, [name]: value });
+
+    // Lógica de autocompletado para el campo 'repuestos'
+    if (name === "repuestos") {
+      if (value.trim().length > 1) {
+        const { data, error } = await supabase
+          .from("repuestos") // Tu tabla de repuestos general
+          .select("nombre")
+          .ilike("nombre", `%${value}%`)
+          .limit(5);
+
+        if (!error && data) {
+          setSugerencias(data);
+          setMostrarSug(true);
+        }
+      } else {
+        setMostrarSug(false);
+      }
+    }
+  };
+
+  const seleccionarSugerencia = (nombre) => {
+    setInputs({ ...inputs, repuestos: nombre });
+    setMostrarSug(false);
   };
 
   const guardarRegistro = async () => {
-    // Validación mínima
-    if (!inputs.fecha.trim() || !inputs.operario.trim()) {
-      return alert("Por favor, completa al menos la fecha y el operario.");
+    if (
+      !inputs.fecha.trim() ||
+      !inputs.operario.trim() ||
+      !inputs.repuestos.trim()
+    ) {
+      return alert(
+        "Por favor, completa al menos la fecha, el operario y los repuestos.",
+      );
     }
 
     try {
-      // Aquí es donde ocurre la magia:
-      // Se guarda el nombre de la máquina JUNTO con los inputs del formulario
       const datosAGuardar = {
         ...inputs,
         nombre_maquina: nombreMaquina,
       };
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from("maquina_individual")
         .insert([datosAGuardar]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
+
+      // 2. DESCONTAR EL STOCK EN LA TABLA REPUESTOS
+      // Buscamos el repuesto por nombre y restamos 1 a la columna 'cantidad'
+      const { data: repuestoData, error: fetchError } = await supabase
+        .from("repuestos")
+        .select("cantidad")
+        .eq("nombre", inputs.repuestos)
+        .single();
+      if (fetchError) {
+        console.error("No se encontró el repuesto para descontar stock");
+      } else {
+        const nuevaCantidad = parseInt(repuestoData.cantidad) - 1;
+
+        if (nuevaCantidad < 0) {
+          alert("Aviso: El stock de este repuesto ha quedado en negativo.");
+        }
+
+        const { error: updateError } = await supabase
+          .from("repuestos")
+          .update({ cantidad: nuevaCantidad })
+          .eq("nombre", inputs.repuestos);
+
+        if (updateError)
+          console.error("Error al actualizar stock:", updateError.message);
+      }
 
       alert(`¡Registro guardado para la máquina ${nombreMaquina}!`);
 
-      // Limpiamos los campos para un nuevo ingreso
       setInputs({
         fecha: "",
         mantenimiento: "",
@@ -83,29 +134,12 @@ function Individualesop() {
         operario: "",
       });
 
-      // Refrescamos la tabla para ver el nuevo registro
       await fetchMiMaquina();
     } catch (error) {
       console.error("Error al guardar:", error);
       alert("No se pudo guardar: " + error.message);
     }
   };
-
-  /*const eliminarMaquina = async (id) => {
-    if (window.confirm("¿Estás seguro de eliminar este registro?")) {
-      try {
-        const { error } = await supabase
-          .from("maquina_individual")
-          .delete()
-          .eq("id", id);
-
-        if (error) throw error;
-        setMiMaquina(miMaquina.filter((m) => m.id !== id));
-      } catch (error) {
-        alert("Error al eliminar: " + error.message);
-      }
-    }
-  };*/
 
   return (
     <>
@@ -114,12 +148,12 @@ function Individualesop() {
           REGRESAR
         </Link>
       </div>
-      <div className="conten">
+      <div className="contenIn">
         <h1>PROYECTO TEXTIL</h1>
         <h3 style={{ textTransform: "uppercase" }}>Máquina: {nombreMaquina}</h3>
+        <p>Historial de mantenimiento</p>
 
         <div className="contenTablaDESO">
-          <p>Historial de mantenimiento</p>
           <table className="tableDESON">
             <thead>
               <tr>
@@ -129,13 +163,12 @@ function Individualesop() {
                 <th>OBSERVACIONES</th>
                 <th>PRÓX. FECHA</th>
                 <th>OPERARIO</th>
-                <th>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="7">Cargando...</td>
+                  <td colSpan="6">Cargando...</td>
                 </tr>
               ) : miMaquina.length > 0 ? (
                 miMaquina.map((item) => (
@@ -150,65 +183,113 @@ function Individualesop() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7">
-                    No hay registros previos para esta máquina. Ingrese el
-                    primero abajo.
-                  </td>
+                  <td colSpan="6">No hay registros previos.</td>
                 </tr>
               )}
             </tbody>
           </table>
-        </div>
 
-        <div className="contenInputs">
-          <div className="inputs">
-            <input
-              type="text"
-              name="fecha"
-              placeholder="Fecha Actual"
-              value={inputs.fecha}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="mantenimiento"
-              placeholder="Tipo de mantenimiento"
-              value={inputs.mantenimiento}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="repuestos"
-              placeholder="Repuestos"
-              value={inputs.repuestos}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="observaciones"
-              placeholder="Observaciones"
-              value={inputs.observaciones}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="prfecha"
-              placeholder="Próxima fecha"
-              value={inputs.prfecha}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="operario"
-              placeholder="Operario"
-              value={inputs.operario}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="contenGuardar">
-            <button className="guardar" onClick={guardarRegistro}>
-              GUARDAR DATOS
-            </button>
+          <div className="contenInputsIn">
+            <div className="inputsIn">
+              <input
+                type="text"
+                name="fecha"
+                placeholder="Fecha Actual"
+                value={inputs.fecha}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="mantenimiento"
+                placeholder="Mantenimiento"
+                value={inputs.mantenimiento}
+                onChange={handleChange}
+              />
+
+              {/* CONTENEDOR RELATIVO PARA EL AUTOCOMPLETADO */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                }}
+              >
+                <input
+                  type="text"
+                  name="repuestos"
+                  placeholder="Buscar Repuesto..."
+                  value={inputs.repuestos}
+                  onChange={handleChange}
+                  onBlur={() => setTimeout(() => setMostrarSug(false), 250)}
+                  autoComplete="off"
+                />
+                {mostrarSug && sugerencias.length > 0 && (
+                  <ul
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      backgroundColor: "white",
+                      border: "1px solid #ccc",
+                      zIndex: 100,
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                    }}
+                  >
+                    {sugerencias.map((sug, i) => (
+                      <li
+                        key={i}
+                        onClick={() => seleccionarSugerencia(sug.nombre)}
+                        style={{
+                          padding: "10px",
+                          cursor: "pointer",
+                          borderBottom: "1px solid #eee",
+                          color: "#333",
+                          fontSize: "14px",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.backgroundColor = "#f0f0f0")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.backgroundColor = "white")
+                        }
+                      >
+                        {sug.nombre}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <input
+                type="text"
+                name="observaciones"
+                placeholder="Observaciones"
+                value={inputs.observaciones}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="prfecha"
+                placeholder="Próxima fecha"
+                value={inputs.prfecha}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="operario"
+                placeholder="Operario"
+                value={inputs.operario}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="contenGuardar">
+              <button className="guardar" onClick={guardarRegistro}>
+                GUARDAR DATOS
+              </button>
+            </div>
           </div>
         </div>
       </div>
